@@ -26,7 +26,7 @@ public class BookServiceTests
 
         // Assert
         Assert.IsNotNull(result);
-        Assert.AreEqual(30, result.Count);
+        Assert.AreEqual(40, result.Count);
         Assert.IsTrue(result.Any(b => b.Title == "To Kill a Mockingbird"));
         Assert.IsTrue(result.Any(b => b.Author == "George Orwell"));
     }
@@ -39,7 +39,7 @@ public class BookServiceTests
 
         // Assert
         Assert.IsNotNull(result);
-        Assert.AreEqual(30, result.Count);
+        Assert.AreEqual(40, result.Count);
     }
 
     [TestMethod]
@@ -50,7 +50,7 @@ public class BookServiceTests
 
         // Assert
         Assert.IsNotNull(result);
-        Assert.AreEqual(30, result.Count);
+        Assert.AreEqual(40, result.Count);
     }
 
     [TestMethod]
@@ -61,7 +61,7 @@ public class BookServiceTests
 
         // Assert
         Assert.IsNotNull(result);
-        Assert.AreEqual(30, result.Count);
+        Assert.AreEqual(40, result.Count);
     }
 
     [TestMethod]
@@ -176,8 +176,10 @@ public class BookServiceTests
 
         // Assert
         Assert.IsNotNull(result);
-        Assert.AreEqual(2, result.Count);
+        Assert.AreEqual(4, result.Count);
         Assert.IsTrue(result.Any(b => b.Title == "1984"));
         Assert.IsTrue(result.Any(b => b.Title == "Brave New World"));
+        Assert.IsTrue(result.Any(b => b.Title == "The Handmaid's Tale"));
+        Assert.IsTrue(result.Any(b => b.Title == "The Hunger Games"));
     }
 }
