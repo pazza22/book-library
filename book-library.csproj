@@ -5,6 +5,15 @@
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <RootNamespace>book_library</RootNamespace>
+    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+    <GenerateTargetFrameworkAttribute>false</GenerateTargetFrameworkAttribute>
   </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Remove="book-library.Tests\**" />
+    <Content Remove="book-library.Tests\**" />
+    <EmbeddedResource Remove="book-library.Tests\**" />
+    <None Remove="book-library.Tests\**" />
+  </ItemGroup>
 
 </Project>
