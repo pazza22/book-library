@@ -47,7 +47,16 @@
             @foreach (var book in Model)
             {
                 <div class="col-md-6 mb-4">
-                    <div class="card h-100">
+                    <div class="card h-100 book-card" 
+                         style="cursor: pointer;"
+                         data-book-id="@book.Id"
+                         data-book-title="@book.Title"
+                         data-book-author="@book.Author"
+                         data-book-description="@book.Description"
+                         data-book-genre="@book.Genre"
+                         data-book-year="@book.PublicationYear"
+                         data-book-isbn="@book.ISBN"
+                         data-book-image="@book.ImageUrl">
                         <div class="card-body">
                             <h5 class="card-title">@book.Title</h5>
                             <h6 class="card-subtitle mb-2 text-muted">by @book.Author</h6>
@@ -109,3 +118,88 @@
         </div>
     }
 </div>
+
+<!-- Book Details Modal -->
+<div class="modal fade" id="bookModal" tabindex="-1" aria-labelledby="bookModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="bookModalLabel">Book Details</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-md-4">
+                        <img id="modalBookImage" src="" alt="Book Cover" class="img-fluid rounded shadow-sm" style="width: 100%; height: auto;">
+                    </div>
+                    <div class="col-md-8">
+                        <h3 id="modalBookTitle" class="mb-2"></h3>
+                        <h5 id="modalBookAuthor" class="text-muted mb-3"></h5>
+                        <p id="modalBookDescription" class="mb-3"></p>
+                        <div class="mb-3">
+                            <span id="modalBookGenre" class="badge bg-primary me-2"></span>
+                            <span id="modalBookYear" class="badge bg-secondary"></span>
+                        </div>
+                        <p class="mb-1"><strong>ISBN:</strong> <span id="modalBookISBN"></span></p>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Get all book cards
+            const bookCards = document.querySelectorAll('.book-card');
+            const bookModal = new bootstrap.Modal(document.getElementById('bookModal'));
+            
+            // Add click event listener to each card
+            bookCards.forEach(card => {
+                card.addEventListener('click', function() {
+                    // Get book data from data attributes
+                    const title = this.getAttribute('data-book-title');
+                    const author = this.getAttribute('data-book-author');
+                    const description = this.getAttribute('data-book-description');
+                    const genre = this.getAttribute('data-book-genre');
+                    const year = this.getAttribute('data-book-year');
+                    const isbn = this.getAttribute('data-book-isbn');
+                    const image = this.getAttribute('data-book-image');
+                    
+                    // Populate modal with book data
+                    document.getElementById('modalBookTitle').textContent = title;
+                    document.getElementById('modalBookAuthor').textContent = 'by ' + author;
+                    document.getElementById('modalBookDescription').textContent = description;
+                    document.getElementById('modalBookGenre').textContent = genre;
+                    document.getElementById('modalBookYear').textContent = year;
+                    document.getElementById('modalBookISBN').textContent = isbn;
+                    document.getElementById('modalBookImage').src = image;
+                    document.getElementById('modalBookImage').alt = title + ' Cover';
+                    
+                    // Show the modal
+                    bookModal.show();
+                });
+            });
+        });
+    </script>
+    
+    <style>
+        .book-card {
+            transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+        }
+        
+        .book-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        }
+        
+        #modalBookImage {
+            max-height: 500px;
+            object-fit: cover;
+        }
+    </style>
+}
