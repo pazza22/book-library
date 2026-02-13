@@ -1,0 +1,111 @@
+﻿@model List<book_library.Models.Book>
+@{
+    ViewData["Title"] = "Book Library";
+}
+
+<div class="container">
+    <h1 class="display-4 mb-4">Book Library</h1>
+    
+    <!-- Search Form -->
+    <div class="row mb-4">
+        <div class="col-md-8 offset-md-2">
+            <form method="get" action="@Url.Action("Index", "Home")" class="d-flex">
+                <input type="text" 
+                       name="searchTerm" 
+                       class="form-control me-2" 
+                       placeholder="Search by title, author, genre, or description..." 
+                       value="@ViewBag.SearchTerm">
+                <button type="submit" class="btn btn-primary">Search</button>
+                @if (!string.IsNullOrWhiteSpace(ViewBag.SearchTerm))
+                {
+                    <a href="@Url.Action("Index", "Home")" class="btn btn-secondary ms-2">Clear</a>
+                }
+            </form>
+        </div>
+    </div>
+
+    <!-- Results Info -->
+    <div class="row mb-3">
+        <div class="col-12">
+            <p class="text-muted">
+                @if (!string.IsNullOrWhiteSpace(ViewBag.SearchTerm))
+                {
+                    <span>Found @ViewBag.TotalBooks result(s) for "@ViewBag.SearchTerm"</span>
+                }
+                else
+                {
+                    <span>Showing @Model.Count of @ViewBag.TotalBooks books</span>
+                }
+            </p>
+        </div>
+    </div>
+
+    <!-- Books Grid -->
+    @if (Model.Any())
+    {
+        <div class="row">
+            @foreach (var book in Model)
+            {
+                <div class="col-md-6 mb-4">
+                    <div class="card h-100">
+                        <div class="card-body">
+                            <h5 class="card-title">@book.Title</h5>
+                            <h6 class="card-subtitle mb-2 text-muted">by @book.Author</h6>
+                            <p class="card-text">@book.Description</p>
+                            <div class="mt-3">
+                                <span class="badge bg-primary">@book.Genre</span>
+                                <span class="badge bg-secondary">@book.PublicationYear</span>
+                            </div>
+                            <p class="card-text mt-2">
+                                <small class="text-muted">ISBN: @book.ISBN</small>
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+
+        <!-- Pagination -->
+        @if (ViewBag.TotalPages > 1)
+        {
+            <nav aria-label="Page navigation" class="mt-4">
+                <ul class="pagination justify-content-center">
+                    <!-- Previous Button -->
+                    <li class="page-item @(ViewBag.CurrentPage == 1 ? "disabled" : "")">
+                        <a class="page-link" 
+                           href="@Url.Action("Index", "Home", new { searchTerm = ViewBag.SearchTerm, page = ViewBag.CurrentPage - 1 })"
+                           aria-label="Previous">
+                            <span aria-hidden="true">&laquo;</span>
+                        </a>
+                    </li>
+
+                    <!-- Page Numbers -->
+                    @for (int i = 1; i <= ViewBag.TotalPages; i++)
+                    {
+                        <li class="page-item @(ViewBag.CurrentPage == i ? "active" : "")">
+                            <a class="page-link" 
+                               href="@Url.Action("Index", "Home", new { searchTerm = ViewBag.SearchTerm, page = i })">
+                                @i
+                            </a>
+                        </li>
+                    }
+
+                    <!-- Next Button -->
+                    <li class="page-item @(ViewBag.CurrentPage == ViewBag.TotalPages ? "disabled" : "")">
+                        <a class="page-link" 
+                           href="@Url.Action("Index", "Home", new { searchTerm = ViewBag.SearchTerm, page = ViewBag.CurrentPage + 1 })"
+                           aria-label="Next">
+                            <span aria-hidden="true">&raquo;</span>
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+        }
+    }
+    else
+    {
+        <div class="alert alert-info" role="alert">
+            No books found. Try a different search term.
+        </div>
+    }
+</div>
