@@ -1,0 +1,19 @@
+services:
+  book-library:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: book-library-app
+    ports:
+      - "5000:8080"
+      - "5001:8081"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Production
+      - ASPNETCORE_URLS=http://+:8080
+    restart: unless-stopped
+    networks:
+      - book-library-network
+
+networks:
+  book-library-network:
+    driver: bridge
