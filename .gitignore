@@ -168,6 +168,7 @@ __pycache__/
 OpenCover/
 
 # Code coverage results
+# Test coverage reports
 coverage/
 coveragereport/
 TestResults/
