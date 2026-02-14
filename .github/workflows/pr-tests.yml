@@ -23,13 +23,16 @@ jobs:
       run: dotnet build --no-restore --configuration Release
     
     - name: Run tests with coverage
-      run: dotnet test --no-build --configuration Release --verbosity normal --collect:"XPlat Code Coverage" --results-directory ./coverage -- DataCollectionRunSettings.DataCollectors.DataCollector.Configuration.Format=cobertura
+      run: dotnet test --no-build --configuration Release --verbosity normal --collect:"XPlat Code Coverage" --results-directory ./coverage
+    
+    - name: List coverage files (debug)
+      run: find coverage -type f -name "*.xml"
     
     - name: Install ReportGenerator
       run: dotnet tool install -g dotnet-reportgenerator-globaltool
     
     - name: Generate Coverage Report
-      run: reportgenerator -reports:"coverage/**/coverage.cobertura.xml" -targetdir:"coveragereport" -reporttypes:"MarkdownSummaryGithub;Cobertura"
+      run: reportgenerator "-reports:coverage/**/coverage.cobertura.xml" "-targetdir:coveragereport" "-reporttypes:MarkdownSummaryGithub;Cobertura"
     
     - name: Add Coverage PR Comment
       uses: marocchino/sticky-pull-request-comment@v2
