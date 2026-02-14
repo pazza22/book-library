@@ -226,4 +226,18 @@ public class HomeControllerTests
         Assert.IsNotNull(model);
         Assert.AreEqual(0, model.Count);
     }
+
+    [TestMethod]
+    public void Index_ShouldSetTitleToBookLibrary()
+    {
+        // Arrange
+        _mockBookService.Setup(s => s.SearchBooks(null)).Returns(_testBooks);
+
+        // Act
+        var result = _controller.Index(null, 1) as ViewResult;
+
+        // Assert
+        Assert.IsNotNull(result);
+        Assert.AreEqual("Pustaka Bandara", result.ViewData["Title"]);
+    }
 }
