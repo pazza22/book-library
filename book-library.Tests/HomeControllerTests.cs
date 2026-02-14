@@ -238,6 +238,6 @@ public class HomeControllerTests
 
         // Assert
         Assert.IsNotNull(result);
-        Assert.AreEqual("Book Library", result.ViewData["Title"]);
+        Assert.AreEqual("Pustaka Bandara", result.ViewData["Title"]);
     }
 }

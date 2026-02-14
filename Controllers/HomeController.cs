@@ -17,7 +17,7 @@ public class HomeController : Controller
 
     public IActionResult Index(string searchTerm, int page = 1)
     {
-        ViewData["Title"] = "My Book Library";
+        ViewData["Title"] = "Pustaka Bandara";
         
         var allBooks = _bookService.SearchBooks(searchTerm);
         var totalBooks = allBooks.Count;
