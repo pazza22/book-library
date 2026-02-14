@@ -29,3 +29,80 @@ body {
 .form-floating > .form-control-plaintext:focus::placeholder, .form-floating > .form-control:focus::placeholder {
   text-align: start;
 }
+
+/* Cart badge styling */
+#cartBadge {
+  font-size: 0.7rem;
+  padding: 0.25em 0.5em;
+  min-width: 1.5em;
+}
+
+/* Add to cart button styling */
+.add-to-cart-btn {
+  transition: all 0.3s ease;
+}
+
+.add-to-cart-btn:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.add-to-cart-btn:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+/* Toast styling */
+.toast-container {
+  z-index: 9999;
+}
+
+/* Cart page styling */
+.cart-item {
+  transition: background-color 0.3s ease;
+}
+
+.cart-item:hover {
+  background-color: #f8f9fa;
+}
+
+.quantity-input {
+  max-width: 60px;
+}
+
+.quantity-input::-webkit-inner-spin-button,
+.quantity-input::-webkit-outer-spin-button {
+  opacity: 1;
+}
+
+/* Ensure proper spacing on book cards */
+.book-card .card-body {
+  padding: 1.5rem;
+}
+
+/* Cart icon styling */
+#cartLink {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  padding: 0.5rem 1rem;
+}
+
+#cartLink:hover {
+  background-color: rgba(0, 0, 0, 0.05);
+  border-radius: 0.25rem;
+}
+
+/* Accessibility improvements */
+.btn:focus-visible,
+button:focus-visible,
+a:focus-visible {
+  outline: 2px solid #0d6efd;
+  outline-offset: 2px;
+}
+
+/* Loading state for buttons */
+.btn .spinner-border-sm {
+  width: 1rem;
+  height: 1rem;
+  border-width: 0.15em;
+}

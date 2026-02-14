@@ -48,7 +48,6 @@
             {
                 <div class="col-md-6 mb-4">
                     <div class="card h-100 book-card" 
-                         style="cursor: pointer;"
                          data-book-id="@book.Id"
                          data-book-title="@book.Title"
                          data-book-author="@book.Author"
@@ -57,17 +56,35 @@
                          data-book-year="@book.PublicationYear"
                          data-book-isbn="@book.ISBN"
                          data-book-image="@book.ImageUrl">
-                        <div class="card-body">
-                            <h5 class="card-title">@book.Title</h5>
-                            <h6 class="card-subtitle mb-2 text-muted">by @book.Author</h6>
-                            <p class="card-text">@book.Description</p>
-                            <div class="mt-3">
-                                <span class="badge bg-primary">@book.Genre</span>
-                                <span class="badge bg-secondary">@book.PublicationYear</span>
+                        <div class="card-body d-flex flex-column">
+                            <div class="clickable-area" style="cursor: pointer; flex: 1;">
+                                <h5 class="card-title">@book.Title</h5>
+                                <h6 class="card-subtitle mb-2 text-muted">by @book.Author</h6>
+                                <p class="card-text">@book.Description</p>
+                                <div class="mt-3">
+                                    <span class="badge bg-primary">@book.Genre</span>
+                                    <span class="badge bg-secondary">@book.PublicationYear</span>
+                                </div>
+                                <p class="card-text mt-2">
+                                    <small class="text-muted">ISBN: @book.ISBN</small>
+                                </p>
                             </div>
-                            <p class="card-text mt-2">
-                                <small class="text-muted">ISBN: @book.ISBN</small>
-                            </p>
+                            <div class="mt-3 d-flex justify-content-between align-items-center">
+                                <span class="h5 mb-0 text-success">$@book.Price.ToString("F2")</span>
+                                <button class="btn btn-primary add-to-cart-btn" 
+                                        data-book-id="@book.Id" 
+                                        aria-label="Add @book.Title to cart"
+                                        type="button">
+                                    <span class="btn-text">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-cart-plus me-1" viewBox="0 0 16 16">
+                                            <path d="M9 5.5a.5.5 0 0 0-1 0V7H6.5a.5.5 0 0 0 0 1H8v1.5a.5.5 0 0 0 1 0V8h1.5a.5.5 0 0 0 0-1H9V5.5z"/>
+                                            <path d="M.5 1a.5.5 0 0 0 0 1h1.11l.401 1.607 1.498 7.985A.5.5 0 0 0 4 12h1a2 2 0 1 0 0 4 2 2 0 0 0 0-4h7a2 2 0 1 0 0 4 2 2 0 0 0 0-4h1a.5.5 0 0 0 .491-.408l1.5-8A.5.5 0 0 0 14.5 3H2.89l-.405-1.621A.5.5 0 0 0 2 1H.5zm3.915 10L3.102 4h10.796l-1.313 7h-8.17zM6 14a1 1 0 1 1-2 0 1 1 0 0 1 2 0zm7 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0z"/>
+                                        </svg>
+                                        Add to Cart
+                                    </span>
+                                    <span class="spinner-border spinner-border-sm d-none" role="status" aria-hidden="true"></span>
+                                </button>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -154,21 +171,25 @@
 @section Scripts {
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            // Get all book cards
+            // Get all book cards and modal
             const bookCards = document.querySelectorAll('.book-card');
             const bookModal = new bootstrap.Modal(document.getElementById('bookModal'));
+            const cartToast = new bootstrap.Toast(document.getElementById('cartToast'));
             
-            // Add click event listener to each card
+            // Add click event listener to clickable areas for modal
             bookCards.forEach(card => {
-                card.addEventListener('click', function() {
+                const clickableArea = card.querySelector('.clickable-area');
+                
+                clickableArea.addEventListener('click', function() {
                     // Get book data from data attributes
-                    const title = this.getAttribute('data-book-title');
-                    const author = this.getAttribute('data-book-author');
-                    const description = this.getAttribute('data-book-description');
-                    const genre = this.getAttribute('data-book-genre');
-                    const year = this.getAttribute('data-book-year');
-                    const isbn = this.getAttribute('data-book-isbn');
-                    const image = this.getAttribute('data-book-image');
+                    const parentCard = this.closest('.book-card');
+                    const title = parentCard.getAttribute('data-book-title');
+                    const author = parentCard.getAttribute('data-book-author');
+                    const description = parentCard.getAttribute('data-book-description');
+                    const genre = parentCard.getAttribute('data-book-genre');
+                    const year = parentCard.getAttribute('data-book-year');
+                    const isbn = parentCard.getAttribute('data-book-isbn');
+                    const image = parentCard.getAttribute('data-book-image');
                     
                     // Populate modal with book data
                     document.getElementById('modalBookTitle').textContent = title;
@@ -182,6 +203,78 @@
                     
                     // Show the modal
                     bookModal.show();
+                });
+            });
+
+            // Add to cart functionality
+            const addToCartButtons = document.querySelectorAll('.add-to-cart-btn');
+            
+            addToCartButtons.forEach(button => {
+                button.addEventListener('click', function(e) {
+                    e.stopPropagation(); // Prevent modal from opening
+                    
+                    const bookId = this.getAttribute('data-book-id');
+                    const btnText = this.querySelector('.btn-text');
+                    const spinner = this.querySelector('.spinner-border');
+                    
+                    // Disable button and show loading state
+                    this.disabled = true;
+                    btnText.classList.add('d-none');
+                    spinner.classList.remove('d-none');
+                    
+                    // Send add to cart request
+                    fetch('/Cart/AddToCart', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({ bookId: parseInt(bookId), quantity: 1 })
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            // Update cart badge
+                            const badge = document.getElementById('cartBadge');
+                            badge.textContent = data.cartItemCount;
+                            badge.style.display = 'inline-block';
+                            
+                            // Show success toast
+                            document.getElementById('toastMessage').textContent = data.message;
+                            cartToast.show();
+                        } else {
+                            // Show error toast
+                            const toastEl = document.getElementById('cartToast');
+                            toastEl.classList.remove('bg-success');
+                            toastEl.classList.add('bg-danger');
+                            document.getElementById('toastMessage').textContent = data.message || 'Failed to add to cart';
+                            cartToast.show();
+                            
+                            // Reset toast color after it's hidden
+                            setTimeout(() => {
+                                toastEl.classList.remove('bg-danger');
+                                toastEl.classList.add('bg-success');
+                            }, 3000);
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        const toastEl = document.getElementById('cartToast');
+                        toastEl.classList.remove('bg-success');
+                        toastEl.classList.add('bg-danger');
+                        document.getElementById('toastMessage').textContent = 'Error adding to cart';
+                        cartToast.show();
+                        
+                        setTimeout(() => {
+                            toastEl.classList.remove('bg-danger');
+                            toastEl.classList.add('bg-success');
+                        }, 3000);
+                    })
+                    .finally(() => {
+                        // Re-enable button and hide loading state
+                        this.disabled = false;
+                        btnText.classList.remove('d-none');
+                        spinner.classList.add('d-none');
+                    });
                 });
             });
         });
@@ -200,6 +293,14 @@
         #modalBookImage {
             max-height: 500px;
             object-fit: cover;
+        }
+
+        .add-to-cart-btn {
+            white-space: nowrap;
+        }
+
+        .add-to-cart-btn:disabled {
+            cursor: not-allowed;
         }
     </style>
 }

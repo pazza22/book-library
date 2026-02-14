@@ -1,0 +1,247 @@
+@model book_library.Models.Cart
+@{
+    ViewData["Title"] = "Shopping Cart";
+}
+
+<div class="container">
+    <h1 class="display-4 mb-4">Shopping Cart</h1>
+
+    @if (Model.Items.Any())
+    {
+        <div class="row">
+            <div class="col-lg-8">
+                <div class="card mb-4">
+                    <div class="card-body">
+                        @foreach (var item in Model.Items)
+                        {
+                            <div class="row align-items-center mb-3 pb-3 border-bottom cart-item" data-book-id="@item.BookId">
+                                <div class="col-md-2">
+                                    <img src="@item.ImageUrl" alt="@item.Title" class="img-fluid rounded" style="max-height: 100px; object-fit: cover;">
+                                </div>
+                                <div class="col-md-4">
+                                    <h6 class="mb-1">@item.Title</h6>
+                                    <p class="text-muted mb-0"><small>by @item.Author</small></p>
+                                </div>
+                                <div class="col-md-2">
+                                    <p class="mb-0 text-success fw-bold">$@item.Price.ToString("F2")</p>
+                                </div>
+                                <div class="col-md-2">
+                                    <div class="input-group input-group-sm">
+                                        <button class="btn btn-outline-secondary quantity-btn" 
+                                                type="button" 
+                                                data-action="decrease" 
+                                                data-book-id="@item.BookId"
+                                                aria-label="Decrease quantity">-</button>
+                                        <input type="number" 
+                                               class="form-control text-center quantity-input" 
+                                               value="@item.Quantity" 
+                                               min="1" 
+                                               data-book-id="@item.BookId"
+                                               aria-label="Quantity">
+                                        <button class="btn btn-outline-secondary quantity-btn" 
+                                                type="button" 
+                                                data-action="increase" 
+                                                data-book-id="@item.BookId"
+                                                aria-label="Increase quantity">+</button>
+                                    </div>
+                                </div>
+                                <div class="col-md-2 text-end">
+                                    <p class="mb-0 fw-bold item-total">$@item.TotalPrice.ToString("F2")</p>
+                                    <button class="btn btn-sm btn-link text-danger p-0 remove-item" 
+                                            data-book-id="@item.BookId"
+                                            type="button"
+                                            aria-label="Remove @item.Title from cart">Remove</button>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-4">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title mb-3">Order Summary</h5>
+                        <div class="d-flex justify-content-between mb-2">
+                            <span>Items:</span>
+                            <span id="totalItemsCount">@Model.TotalItems</span>
+                        </div>
+                        <div class="d-flex justify-content-between mb-3 pb-3 border-bottom">
+                            <span>Subtotal:</span>
+                            <span class="fw-bold" id="cartTotalPrice">$@Model.TotalPrice.ToString("F2")</span>
+                        </div>
+                        <div class="d-flex justify-content-between mb-3">
+                            <span class="h5">Total:</span>
+                            <span class="h5 text-success" id="finalTotalPrice">$@Model.TotalPrice.ToString("F2")</span>
+                        </div>
+                        <button class="btn btn-primary w-100 mb-2" type="button">Proceed to Checkout</button>
+                        <a href="@Url.Action("Index", "Home")" class="btn btn-outline-secondary w-100">Continue Shopping</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+    else
+    {
+        <div class="card">
+            <div class="card-body text-center py-5">
+                <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" fill="currentColor" class="bi bi-cart-x text-muted mb-3" viewBox="0 0 16 16">
+                    <path d="M7.354 5.646a.5.5 0 1 0-.708.708L7.793 7.5 6.646 8.646a.5.5 0 1 0 .708.708L8.5 8.207l1.146 1.147a.5.5 0 0 0 .708-.708L9.207 7.5l1.147-1.146a.5.5 0 0 0-.708-.708L8.5 6.793 7.354 5.646z"/>
+                    <path d="M.5 1a.5.5 0 0 0 0 1h1.11l.401 1.607 1.498 7.985A.5.5 0 0 0 4 12h1a2 2 0 1 0 0 4 2 2 0 0 0 0-4h7a2 2 0 1 0 0 4 2 2 0 0 0 0-4h1a.5.5 0 0 0 .491-.408l1.5-8A.5.5 0 0 0 14.5 3H2.89l-.405-1.621A.5.5 0 0 0 2 1H.5zm3.915 10L3.102 4h10.796l-1.313 7h-8.17zM6 14a1 1 0 1 1-2 0 1 1 0 0 1 2 0zm7 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0z"/>
+                </svg>
+                <h3 class="mb-3">Your cart is empty</h3>
+                <p class="text-muted mb-4">Add some books to get started!</p>
+                <a href="@Url.Action("Index", "Home")" class="btn btn-primary">Browse Books</a>
+            </div>
+        </div>
+    }
+</div>
+
+@section Scripts {
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const cartToast = new bootstrap.Toast(document.getElementById('cartToast'));
+
+            // Handle quantity changes
+            document.querySelectorAll('.quantity-btn').forEach(button => {
+                button.addEventListener('click', function() {
+                    const bookId = parseInt(this.getAttribute('data-book-id'));
+                    const action = this.getAttribute('data-action');
+                    const input = document.querySelector(`.quantity-input[data-book-id="${bookId}"]`);
+                    let quantity = parseInt(input.value);
+
+                    if (action === 'increase') {
+                        quantity++;
+                    } else if (action === 'decrease' && quantity > 1) {
+                        quantity--;
+                    }
+
+                    updateQuantity(bookId, quantity);
+                });
+            });
+
+            // Handle manual quantity input changes
+            document.querySelectorAll('.quantity-input').forEach(input => {
+                input.addEventListener('change', function() {
+                    const bookId = parseInt(this.getAttribute('data-book-id'));
+                    let quantity = parseInt(this.value);
+
+                    if (isNaN(quantity) || quantity < 1) {
+                        quantity = 1;
+                    }
+
+                    updateQuantity(bookId, quantity);
+                });
+            });
+
+            // Handle remove item
+            document.querySelectorAll('.remove-item').forEach(button => {
+                button.addEventListener('click', function() {
+                    const bookId = parseInt(this.getAttribute('data-book-id'));
+                    
+                    if (confirm('Are you sure you want to remove this item from your cart?')) {
+                        removeItem(bookId);
+                    }
+                });
+            });
+
+            function updateQuantity(bookId, quantity) {
+                fetch('/Cart/UpdateQuantity', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ bookId, quantity })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        // Update the quantity input
+                        const input = document.querySelector(`.quantity-input[data-book-id="${bookId}"]`);
+                        input.value = quantity;
+
+                        // Update item total
+                        const cartItem = document.querySelector(`.cart-item[data-book-id="${bookId}"]`);
+                        const itemTotal = cartItem.querySelector('.item-total');
+                        itemTotal.textContent = '$' + data.itemTotal.toFixed(2);
+
+                        // Update cart totals
+                        document.getElementById('totalItemsCount').textContent = data.cartItemCount;
+                        document.getElementById('cartTotalPrice').textContent = '$' + data.cartTotal.toFixed(2);
+                        document.getElementById('finalTotalPrice').textContent = '$' + data.cartTotal.toFixed(2);
+
+                        // Update cart badge
+                        const badge = document.getElementById('cartBadge');
+                        badge.textContent = data.cartItemCount;
+                        if (data.cartItemCount > 0) {
+                            badge.style.display = 'inline-block';
+                        } else {
+                            badge.style.display = 'none';
+                        }
+                    }
+                })
+                .catch(error => console.error('Error updating quantity:', error));
+            }
+
+            function removeItem(bookId) {
+                fetch('/Cart/RemoveFromCart', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ bookId })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        // Remove the item from the DOM
+                        const cartItem = document.querySelector(`.cart-item[data-book-id="${bookId}"]`);
+                        cartItem.remove();
+
+                        // Update cart badge
+                        const badge = document.getElementById('cartBadge');
+                        badge.textContent = data.cartItemCount;
+                        if (data.cartItemCount > 0) {
+                            badge.style.display = 'inline-block';
+                        } else {
+                            badge.style.display = 'none';
+                        }
+
+                        // Show toast
+                        document.getElementById('toastMessage').textContent = data.message;
+                        cartToast.show();
+
+                        // If cart is empty, reload the page to show empty cart message
+                        if (data.cartItemCount === 0) {
+                            setTimeout(() => {
+                                window.location.reload();
+                            }, 1000);
+                        } else {
+                            // Recalculate totals on client side
+                            updateCartTotals();
+                        }
+                    }
+                })
+                .catch(error => console.error('Error removing item:', error));
+            }
+
+            function updateCartTotals() {
+                let totalItems = 0;
+                let totalPrice = 0;
+
+                document.querySelectorAll('.cart-item').forEach(item => {
+                    const quantity = parseInt(item.querySelector('.quantity-input').value);
+                    const priceText = item.querySelector('.item-total').textContent;
+                    const price = parseFloat(priceText.replace('$', ''));
+                    
+                    totalItems += quantity;
+                    totalPrice += price;
+                });
+
+                document.getElementById('totalItemsCount').textContent = totalItems;
+                document.getElementById('cartTotalPrice').textContent = '$' + totalPrice.toFixed(2);
+                document.getElementById('finalTotalPrice').textContent = '$' + totalPrice.toFixed(2);
+            }
+        });
+    </script>
+}
