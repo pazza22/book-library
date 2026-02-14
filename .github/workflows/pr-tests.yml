@@ -4,6 +4,10 @@ on:
   pull_request:
     branches: [ main, develop ]
 
+permissions:
+  contents: read
+  pull-requests: write
+
 jobs:
   test:
     runs-on: ubuntu-latest
@@ -22,5 +26,21 @@ jobs:
     - name: Build
       run: dotnet build --no-restore --configuration Release
     
-    - name: Run tests
-      run: dotnet test --no-build --configuration Release --verbosity normal
+    - name: Run tests with coverage
+      run: dotnet test --no-build --configuration Release --verbosity normal --collect:"XPlat Code Coverage" --results-directory ./coverage
+    
+    - name: List coverage files (debug)
+      run: find coverage -type f -name "*.xml"
+    
+    - name: Install ReportGenerator
+      run: dotnet tool install -g dotnet-reportgenerator-globaltool
+    
+    - name: Generate Coverage Report
+      run: reportgenerator "-reports:coverage/**/coverage.cobertura.xml" "-targetdir:coveragereport" "-reporttypes:MarkdownSummaryGithub;Cobertura"
+    
+    - name: Add Coverage PR Comment
+      uses: marocchino/sticky-pull-request-comment@v2
+      if: github.event_name == 'pull_request'
+      with:
+        recreate: true
+        path: coveragereport/SummaryGithub.md
